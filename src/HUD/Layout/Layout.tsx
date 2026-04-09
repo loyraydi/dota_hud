@@ -11,6 +11,7 @@ import Scoreboard, { stringToClock } from "../Scoreboard/Scoreboard";
 import CameraContainer from "../Camera/Container";
 
 import ObservedPlayer from "../GameHUD/Game";
+import PauseOverlay from "../GameHUD/PauseOverlay";
 import { actions, configs } from "../../App";
 
 interface Props {
@@ -21,6 +22,7 @@ interface Props {
 interface State {
     view: "draft" | "game" | "scoreboard" | null;
     text: string;
+    isPaused: boolean;
 }
 
 export default class Layout extends React.Component<Props, State> {
@@ -29,6 +31,7 @@ export default class Layout extends React.Component<Props, State> {
         this.state = {
             view: null,
             text: "",
+            isPaused: false,
         };
     }
 
@@ -62,6 +65,7 @@ export default class Layout extends React.Component<Props, State> {
         const { game, match } = this.props;
 
         const state = game.map.game_state;
+        const isPaused = game.map.paused || false;
 
         let view = this.state.view;
 
@@ -168,14 +172,18 @@ export default class Layout extends React.Component<Props, State> {
                     />
                 </div>
 
-                {/* Statistics рендерит TopSideBar для radiant внутри себя */}
-                <Statistics
-                    player={game.player}
+                {/* TopSideBar для radiant */}
+                <TopSideBar
                     type="radiant"
                     team={game.map.radiant}
                     teamId={radiantTeamId}
                     show={showGame}
-                />
+                    teamName={match?.left?.name}
+                    score={game.players.filter(p => p.team_name === 'dire').reduce((sum, p) => sum + p.deaths, 0)}
+                    players={game.players}
+                >
+                    <span>{this.state.text}</span>
+                </TopSideBar>
 
                 {/* TopSideBar для dire */}
                 <TopSideBar
@@ -183,6 +191,9 @@ export default class Layout extends React.Component<Props, State> {
                     team={game.map.dire}
                     teamId={direTeamId}
                     show={showGame}
+                    teamName={match?.right?.name}
+                    score={game.players.filter(p => p.team_name === 'radiant').reduce((sum, p) => sum + p.deaths, 0)}
+                    players={game.players}
                 >
                     <span>{this.state.text}</span>
                 </TopSideBar>
@@ -206,6 +217,9 @@ export default class Layout extends React.Component<Props, State> {
                     observedSteamid={game.player?.steamid ?? null}
                     showCam={showGame}
                 />
+
+                {/* Pause Overlay */}
+                <PauseOverlay show={isPaused && showGame} />
             </>
         );
     }

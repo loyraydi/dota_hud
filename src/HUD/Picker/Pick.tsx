@@ -4,35 +4,30 @@ import Snow from "./snowflake.png";
 import { getAssetURL } from '../../api/api';
 const PlayerPick = ({ entry, type, active }: { entry: DraftEntry, type: Faction, active: boolean }) => {
     const order = entry.order + 1;
-    let lastPart = 'th';
-    if (order === 1) {
-        lastPart = 'st';
-    } else if (order === 2) {
-        lastPart = 'nd';
-    } else if (order === 3) {
-        lastPart = 'rd';
-    }
-    let text = `${order}${lastPart} PICK`;
-    if (!entry.class) {
-        text = '';
-    }
+    let text = '';
+    
     if (active) {
-        text = 'PICKING...';
+        text = 'PICK';
     }
+    
     return <div className={`player_draft ${type} ${active ? 'active' : ''}`}>
         <div className="player_preview">
-            <div className="background-imgs">
-            </div>
-            {entry.class ? <video muted={true} autoPlay={true} loop={true} width="123">
-
-                <source src={getAssetURL(entry.class, "heroes_animated")}
-                    type="video/webm" />
-
-
-                Sorry, your browser doesn't support embedded videos.
-            </video> : null}
+            {entry.class ? (
+                <>
+                    <div 
+                        className="background-imgs" 
+                        style={{
+                            backgroundImage: `url('${getAssetURL(entry.class, "heroes")}')`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center'
+                        }}
+                    />
+                </>
+            ) : (
+                <div className="background-imgs" />
+            )}
         </div>
-        <div className={`draft_status ${!text ? 'hidden' : ''}`}>
+        <div className={`draft_status ${active ? 'active' : ''} ${!text && !active ? 'hidden' : ''}`}>
             {text}
         </div>
     </div>

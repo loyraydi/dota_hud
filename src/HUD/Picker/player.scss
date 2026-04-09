@@ -20,211 +20,332 @@
 .draft-container {
     display: flex;
     position: fixed;
-    margin-left:50%;
+    margin-left: 50%;
     transform: translateX(-50%);
-    bottom: 104px;
+    bottom: 120px;
+    gap: 24px;
+    align-items: center;
 }
 
 .tournament_info {
-    width: 139px;
-    height: 145px;
+    width: 160px;
+    height: auto;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 8px;
+    
     .bo {
-        height: 33px;
+        height: 40px;
         width: 100%;
-        background-color: rgba(19, 0, 23, 0.9);
+        background: rgba(0, 0, 0, 0.6);
         color: white;
         display: flex;
         align-items: center;
         font-weight: 700;
         justify-content: center;
         text-transform: uppercase;
+        font-size: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        letter-spacing: 0.1em;
     }
+    
     .picker_and_logo {
         display: flex;
-        flex: 1;
-        background-color: rgba(19, 0, 23, 0.9);
+        height: 60px;
+        background: rgba(0, 0, 0, 0.6);
         background-repeat: no-repeat;
         background-position: center;
         justify-content: space-between;
         background-size: cover;
-        .side_pick{
+        gap: 8px;
+        padding: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        
+        .side_pick {
             display: flex;
             flex: 1;
             align-items: center;
             justify-content: center;
             background-repeat: no-repeat;
             background-position: center;
-            max-width: 45px;
-        
+            background-size: contain;
+            position: relative;
+            transition: all 0.3s ease;
+            
             &.left {
-                background-image: url('./leftPick.png');
-                &.active {
-                    background-image: url('./leftPickActive.png');
+                &::after {
+                    content: '◀';
+                    font-size: 24px;
+                    color: rgba(255, 255, 255, 0.3);
+                }
+                
+                &.active::after {
+                    color: #7C3AED;
+                    text-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
                 }
             }
+            
             &.right {
-                background-image: url('./rightPick.png');
-                &.active {
-                    background-image: url('./rightPickActive.png');
+                &::after {
+                    content: '▶';
+                    font-size: 24px;
+                    color: rgba(255, 255, 255, 0.3);
+                }
+                
+                &.active::after {
+                    color: #EAB308;
+                    text-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
                 }
             }
         }
     }
 }
+.team_draft {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .players_draft {
     display: flex;
+    gap: 4px;
+    align-items: center;
 
     &.radiant {
-        flex-direction: row-reverse;
+        flex-direction: row;
+    }
+    
+    &.dire {
+        flex-direction: row;
     }
 }
+
 .players_draft_ban {
     display: flex;
+    gap: 4px;
+    
     &.radiant {
-        flex-direction: row-reverse;
+        flex-direction: row;
+    }
+    
+    &.dire {
+        flex-direction: row;
     }
 }
 .team_draft_ban {
-    position: absolute;
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    
     &.radiant {
-        right: 0;
+        justify-content: flex-start;
     }
+    
     &.dire {
-        left: 0;
+        justify-content: flex-start;
     }
-    top: 4px;
 }
 .player_ban {
-    margin: 0 2px;
+    margin: 0 4px;
+    width: 80px;
+    height: 80px;
+    position: relative;
+    
     .player_preview {
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        width: 36px;
-        height: 36px;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        
         img {
-            height: 36px;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+            filter: grayscale(100%);
+        }
+        
+        // X mark overlay for bans
+        &::after {
+            content: '×';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 64px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 300;
+            line-height: 1;
         }
     }
 }
 .player_draft {
-    width:123px;
-    height:145px;
-    display:flex;
+    width: 80px;
+    height: 80px;
+    display: flex;
     flex-direction: column;
-    margin:0 1.5px;
+    margin: 0 4px;
+    position: relative;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+
     &.dire {
-        .draft_status {
-            background-color: #BD1313;
+        background: rgba(234, 179, 8, 0.15);
+        border-color: rgba(234, 179, 8, 0.3);
+        
+        &.active {
+            border-color: #EAB308;
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.5);
         }
     }
+
     &.radiant {
-        .draft_status {
-            background-color: #16349E;
+        background: rgba(124, 58, 237, 0.15);
+        border-color: rgba(124, 58, 237, 0.3);
+        
+        &.active {
+            border-color: #7C3AED;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
         }
     }
+
     .player_preview {
         flex: 1;
-        background-color:rgba(19, 0, 23, 0.9);
         display: flex;
         background-position: center;
         background-repeat: no-repeat;
+        background-size: cover;
+        position: relative;
+        
         .background-imgs {
-            flex:1;
-            opacity:0.3;
+            flex: 1;
+            opacity: 0.9;
             background-position: center;
             background-repeat: no-repeat;
+            background-size: cover;
         }
     }
+
     .draft_status {
-        width:100%;
-        height:21px;
+        width: 100%;
+        height: 0;
         color: white;
         text-align: center;
         font-weight: 700;
-        font-size: 15px;
+        font-size: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        
         &.active {
-            
+            height: 24px;
+            font-size: 12px;
+            padding: 4px 0;
         }
+        
         &.hidden {
-            height: 7px;
+            height: 0;
         }
     }
 }
 .team_info_container {
     display: flex;
-    height: 76px;
-    width: 1390px;
-    background-color: rgba(19, 0, 23, 0.9);
+    height: 100px;
+    width: 100%;
+    max-width: 1600px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.95));
     color: white;
     position: fixed;
-    margin-left:50%;
+    margin-left: 50%;
     transform: translateX(-50%);
-    bottom: 24px;
+    bottom: 0;
     .timer {
-        width: 139px;
+        width: 200px;
         height: 100%;
-        background-color: #0E0018;
+        background: rgba(0, 0, 0, 0.5);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        border-left: 2px solid rgba(255, 255, 255, 0.1);
+        border-right: 2px solid rgba(255, 255, 255, 0.1);
+        
         .label {
-            font-size: 15px;
+            font-size: 14px;
             text-transform: uppercase;
-            opacity: 0.7;
-            font-weight: 700;
-            letter-spacing: 0.1em;
+            opacity: 0.6;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            margin-bottom: 4px;
         }
+        
         .timer-time {
             font-weight: 700;
-
-            font-size: 22px;
+            font-size: 36px;
+            color: #FCD34D;
         }
     }
     .team_info {
-        flex:1;
+        flex: 1;
         display: flex;
         position: relative;
+        padding: 12px 24px;
+        
         .team_info_score {
-            width: 60px;
-            display:flex;
+            width: 80px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 38px;
+            font-size: 48px;
             font-weight: 700;
+            border-radius: 4px;
         }
+        
         .team_squad {
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            flex: 1;
+            
             .top_bar {
-                font-size: 24px;
+                font-size: 28px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
             }
+            
             .bottom_bar {
-                font-size: 15px;
+                font-size: 16px;
+                opacity: 0.7;
+                font-weight: 500;
             }
+            
             > div {
-                flex: 1;
                 display: flex;
                 align-items: center;
             }
         }
+        
         &.radiant {
             .team_info_score {
-                background-color: #16349E;
-                margin-right: 8px;
+                background: linear-gradient(135deg, #7C3AED, #6D28D9);
+                margin-right: 16px;
             }
         }
+        
         &.dire {
             flex-direction: row-reverse;
+            
             .team_info_score {
-                background-color: #BD1313;
-                margin-left: 8px;
+                background: linear-gradient(135deg, #EAB308, #CA8A04);
+                margin-left: 16px;
             }
+            
             .team_squad {
                 align-items: flex-end;
             }
