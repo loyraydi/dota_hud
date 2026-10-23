@@ -1,7 +1,9 @@
 {
-    "name":"LHM Dota 2 Default HUD",
-    "version":"1.3.1",
-    "author":"Lexogrine",
+    "hudId":"meow-dota-default",
+    "name":"Meow Dota 2 Default HUD",
+    "version":"1.0.3",
+    "author":"aohameow",
+    "minPlan":"free",
     "legacy": false,
     "radar": true,
     "killfeed": true,
@@ -9,5 +11,20 @@
     "boltobserv":{
         "css":true,
         "maps":true
-    }
+    },
+    "keybinds": [
+        { "action": "scoreboard",   "label": "Scoreboard"     },
+        { "action": "comparison",   "label": "Comparison"     },
+        { "action": "game",         "label": "Game View"      },
+        { "action": "draft",        "label": "Draft View"     },
+        { "action": "stat_healing", "label": "Stat: Healing"  },
+        { "action": "stat_camps",   "label": "Stat: Camps"    },
+        { "action": "stat_gpm",     "label": "Stat: GPM"      },
+        { "action": "stat_damage",  "label": "Stat: Damage"   },
+        { "action": "stat_networth","label": "Stat: Net Worth"},
+        { "action": "stat_lasthits","label": "Stat: Last Hits"},
+        { "action": "stat_wards",   "label": "Stat: Wards"    },
+        { "action": "roshan",       "label": "Roshan Notify"  },
+        { "action": "swapSides",    "label": "Swap Sides"     }
+    ]
 }

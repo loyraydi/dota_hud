@@ -1,12 +1,14 @@
 import React from 'react';
 import Layout from './HUD/Layout/Layout';
-import { DOTA2GSI } from 'dotagsi';
-import { io } from 'socket.io-client';
-import type { Dota2RawPayload } from './types/dota2.types';
+import HudStage from './HUD/HudStage';
+import Advertising from './HUD/Advertising/Advertising';
+import Watermark from './HUD/Watermark/Watermark';
 import { Dota2 } from 'dotagsi';
 import { Match } from './api/interfaces';
 import api from './api/api';
 import "./HUD/GameHUD/gamehud.scss";
+import "./HUD/Advertising/sponsor.scss";
+import { socket, DOTA2, configs } from './api/services';
 
 type ParentWindow = Window & {
     ipcApi?: {
@@ -14,69 +16,18 @@ type ParentWindow = Window & {
     };
 };
 
-
 let isInWindow = false;
 let parentWindow: ParentWindow | null = null
-
 
 if (typeof window !== "undefined" && window.parent && window.parent !== window) {
     parentWindow = window.parent as ParentWindow;
     isInWindow = !!parentWindow.ipcApi;
 }
 
-// ─── Подключаемся к meowhud серверу ──────────────────────────────────────────
-const MEOWHUD_PORT = 1349;
-export const socket = io(`http://localhost:${MEOWHUD_PORT}`, {
-    transports: ['websocket', 'polling'],
-});
+// ─── App ────────────────────────────────────────────────────────────────────
+/** Минимальный интервал между рендерами по данным GSI (обычный поток доты — 10/с) */
+const MIN_RENDER_MS = 40;
 
-// ─── DOTA2GSI — парсер GSI данных от dotagsi ─────────────────────────────────
-const DOTA2 = new DOTA2GSI();
-
-socket.on('dota2_update', (data: Dota2RawPayload) => {
-    DOTA2.digest(data as any);
-});
-
-// ─── ActionManager / ConfigManager ───────────────────────────────────────────
-class ActionManager {
-    listeners: Map<string, Function[]> = new Map();
-
-    execute(event: string, arg?: any) {
-        const fns = this.listeners.get(event) || [];
-        fns.forEach(fn => arg !== undefined ? fn(arg) : fn());
-    }
-
-    on(event: string, fn: Function) {
-        const list = this.listeners.get(event) || [];
-        list.push(fn);
-        this.listeners.set(event, list);
-        return true;
-    }
-}
-
-class ConfigManager {
-    listeners: Function[] = [];
-    data: any = {};
-
-    save(data: any) {
-        this.data = data;
-        this.listeners.forEach(fn => fn(data));
-    }
-
-    onChange(fn: Function) {
-        this.listeners.push(fn);
-        return true;
-    }
-}
-
-export const actions = new ActionManager();
-export const configs = new ConfigManager();
-
-socket.on('hud_action', (data: { action: string; data?: any }) => {
-    actions.execute(data.action, data.data);
-});
-
-// ─── App ──────────────────────────────────────────────────────────────────────
 interface State {
     game: Dota2 | null;
     match: Match | null;
@@ -86,35 +37,70 @@ class App extends React.Component<{}, State> {
     state: State = { game: null, match: null };
 
     componentDidMount() {
-        // HTTP запрос при старте — всегда получим текущий матч
         this.loadMatch();
+        socket.on('match:updated', () => this.loadMatch());
+        socket.on('match:current', (match: Match) => this.setState({ match }));
+        DOTA2.on('data', this.onGameData);
 
-        // Сервер эмитит "match" (не "match:updated")
-        socket.on('match', () => {
-            console.log('🔥 socket match event received');
-            this.loadMatch();
-        });
+        // Подтягиваем сохранённый конфиг рекламы при старте (если API есть)
+        this.loadAdvertising();
+    }
 
-        DOTA2.on('data', (data: Dota2) => {
-            this.setState({ game: data });
-        });
+    componentWillUnmount() {
+        DOTA2.off('data', this.onGameData);
+        if (this.flushTimer !== null) clearTimeout(this.flushTimer);
+    }
+
+    // Пачки GSI (клиент иногда шлёт несколько пакетов подряд) сводим в один рендер:
+    // не чаще раза в MIN_RENDER_MS, всегда с последними данными. setTimeout, а не rAF —
+    // rAF стоит в фоновой вкладке/скрытом окне, и худ «замерзал» бы.
+    private pendingGame: Dota2 | null = null;
+    private flushTimer: ReturnType<typeof setTimeout> | null = null;
+    private lastFlush = 0;
+
+    onGameData = (data: Dota2) => {
+        this.pendingGame = data;
+        if (this.flushTimer !== null) return;
+        const wait = Math.max(0, this.lastFlush + MIN_RENDER_MS - performance.now());
+        this.flushTimer = setTimeout(this.flushGameData, wait);
+    }
+
+    flushGameData = () => {
+        this.flushTimer = null;
+        this.lastFlush = performance.now();
+        const game = this.pendingGame;
+        this.pendingGame = null;
+        if (game) this.setState({ game });
     }
 
     loadMatch = async () => {
         try {
-            console.log('📡 loading match...');
             const match = await api.match.getCurrent();
-            console.log('📦 match result:', match);
-            this.setState({ match });
+            if (match && match.id) this.setState({ match });
         } catch (e) {
             console.error('Failed to load match:', e);
         }
     }
 
+    loadAdvertising = async () => {
+        try {
+            // Если в api есть метод получения текущего конфига рекламы — используем
+            const adv = await (api as any).hud?.getAdvertisingConfig?.();
+            if (adv) configs.save({ advertising: adv });
+        } catch { /* метода может не быть — игнорируем */ }
+    }
+
     render() {
         const { game, match } = this.state;
-        if (!game) return null;
-        return <Layout game={game} match={match} />;
+        return (
+            <HudStage>
+                {game && <Layout game={game} match={match} />}
+                {/* Спонсор рендерится всегда — поверх любого вида HUD */}
+                <Advertising />
+                {/* Водяной знак бесплатного доступа (сервер гасит для платных) */}
+                <Watermark />
+            </HudStage>
+        );
     }
 }
 

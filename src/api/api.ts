@@ -1,34 +1,53 @@
-// ─── Все API запросы идут на meowhud сервер (порт 1349) ──────────────────────
-export const port = 1349;
-export const isDev = import.meta.env.DEV;
-export const apiUrl = `http://localhost:${port}/`;
+import * as Types from './interfaces';
 
-// ─── Ассеты берутся локально из src/assets/ ──────────────────────────────────
+export const port = 1349;
+export const HOST = 'http://localhost';
+export const apiUrl = `${HOST}:${port}/`;
+
 export { getAssetURL } from './getAssetURL';
 
-export async function apiV2(url: string, method = "GET", body?: any) {
+const buildUrl = (url: string) => `${apiUrl}api/${url}`;
+
+export const apiRequest = async <T>(
+    url: string,
+    method = 'GET',
+    body?: unknown
+): Promise<T> => {
     const options: RequestInit = {
         method,
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
     };
-    if (body) options.body = JSON.stringify(body);
-    return fetch(`${apiUrl}api/${url}`, options).then((res) =>
-        res.json().catch(() => res.status < 300)
-    );
-}
+
+    if (body) {
+        options.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(buildUrl(url), options);
+
+    try {
+        const parsed = (await response.json()) as T;
+        return parsed;
+    } catch (_error) {
+        return (response.status < 300 ? true : null) as unknown as T;
+    }
+};
 
 const api = {
     match: {
-        getCurrent: async () => apiV2("match/current"),
+        getCurrent: (): Promise<Types.Match> =>
+            apiRequest<Types.Match>('match/current'),
     },
     teams: {
-        getOne: async (id: string) => apiV2(`/dota2/match/teams/${id}`),
-        get: () => apiV2("teams"),
+        get: (): Promise<Types.Team[]> =>
+            apiRequest<Types.Team[]>('teams'),
+        getOne: (id: string): Promise<Types.Team> =>
+            apiRequest<Types.Team>(`teams/${id}`),
     },
     players: {
-        get: async () => apiV2("players"),
-        getAvatarURLs: async (steamid: string) =>
-            apiV2(`api/players/avatar/steamid/${steamid}`),
+        get: (): Promise<Types.Player[]> =>
+            apiRequest<Types.Player[]>('players'),
+        getAvatarURLs: (steamid: string): Promise<{ custom: string; steam: string }> =>
+            apiRequest<{ custom: string; steam: string }>(`players/avatar/steamid/${steamid}`),
     },
 };
 

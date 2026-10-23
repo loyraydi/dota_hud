@@ -1,0 +1,80 @@
+// ─── Sponsor / Advertising блок ───────────────────────────────────────────────
+// Встаёт справа от драфт-пикера, в пустую область.
+// Драфт: left:10, ширина 1689 → правый край 1699. Спонсор от ~1705 до края.
+.sponsor {
+  position: fixed;
+  // Сразу после драфта (10 + 1689 + 6 gap) и до правого края блока 1920 с отступом.
+  // --wide-x/--narrow-k (HudStage) — тот же сдвиг/масштаб, что у драфта.
+  left: calc(var(--wide-x, 0px) + 1705px * var(--narrow-k, 1));
+  right: calc(var(--wide-x, 0px) + 10px);
+  bottom: 30px;          // та же нижняя линия что у драфта
+  // Высота = как весь драфт-блок (ники 20 + строка 140 + divider 22 + labels 14 + phase 34 + строка 140 + ники 20)
+  height: calc(390px * var(--narrow-k, 1));
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--fadeMs, 300ms) ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 20px;
+
+  // Тёмный полупрозрачный фон как у драфта + лёгкий градиент команд
+  background:
+          linear-gradient(180deg,
+                  rgba(var(--color-radiant-rgb, 207, 197, 89), 0.68) 0%,
+                  rgba(12, 12, 14, 0.37) 35%,
+                  rgba(12, 12, 14, 0.29) 65%,
+                  rgba(var(--color-dire-rgb, 132, 34, 244), 0.53) 100%);
+  border-radius: 4px;
+  box-shadow: 0 0 24px rgba(0,0,0,0.5);
+
+  &.show_sponsor {
+    opacity: 1;
+  }
+}
+
+.sponsor_image {
+  position: absolute;
+  inset: 20px;           // внутренний отступ от краёв блока
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
+  object-fit: contain;
+}
+
+.imgLayer {
+  transition: opacity var(--fadeMs, 300ms) ease;
+
+  &.is-current {
+    opacity: 1;
+    z-index: 2;
+  }
+  &.is-exiting {
+    opacity: 0;
+    z-index: 1;
+  }
+}
+// ─── Фаза игры: в просвет между предметами и магазином ──────────────────────
+// Замер по кадру 1920×1080 с модом: правый край панели предметов (колонка 0/6) ≈ x 1400,
+// панель магазина начинается ≈ x 1628, верх нижней панели ≈ y 935.
+// Панель предметов — часть центральной панели доты (она по центру), магазин прижат
+// к правому краю — поэтому left от центра сцены, right от края: на широких экранах
+// просвет растёт, блок не шире 240 и по центру просвета.
+[data-hud-view="game"] .sponsor {
+  left: calc(50% + 444px);
+  right: 298px;
+  max-width: 240px;
+  margin: 0 auto;
+  bottom: 8px;
+  height: 124px;
+  padding: 0;
+  overflow: hidden;   // на 4:3 просвета нет — блок схлопывается, а не налезает на магазин
+  box-shadow: 0 0 12px rgba(0,0,0,0.5);
+
+  .sponsor_image {
+    inset: 10px;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+  }
+}

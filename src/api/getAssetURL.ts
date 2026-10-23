@@ -5,19 +5,22 @@ export const getAssetURL = (
         | "heroes_icons"
         | "heroes"
         | "items"
+        | "draft_animated"
         | "abilities"
         | "runes"
         | "facets"
 ): string => {
     if (!asset) return "";
 
-    const base = "/assets/dota2";
+    const base = "./assets/dota2";
 
     switch (assetType) {
         case "heroes_icons":
             return `${base}/heroes/icons/${asset.replace("npc_dota_hero_", "")}.webp`;
         case "heroes_animated":
             return `${base}/heroes/animated/${asset.startsWith("npc_dota_hero_") ? asset : `npc_dota_hero_${asset}`}.webm`;
+        case "draft_animated":
+            return `${base}/heroes/animated_draft/${asset.startsWith("npc_dota_hero_") ? asset : `npc_dota_hero_${asset}`}.webm`;
         case "heroes":
             return `${base}/heroes/${asset.replace("npc_dota_hero_", "")}.webp`;
         case "items":

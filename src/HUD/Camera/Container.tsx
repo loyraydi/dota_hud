@@ -37,9 +37,12 @@ export const useStreamName = (steamid: string): string | null => {
 const CameraContainer = ({
                              observedSteamid,
                              showCam,
+                             target,
                          }: {
     observedSteamid: string | null;
     showCam: boolean;
+    /** Узел для портала. Если передан — без поиска по DOM (см. ниже). */
+    target?: Element | null;
 }) => {
     const [players, setPlayers] = useState<PlayerWithCam[]>([]);
     const [portalTarget, setPortalTarget] = useState<Element | null>(null);
@@ -50,15 +53,17 @@ const CameraContainer = ({
         const load = async () => {
             try {
                 const result = await api.players.get();
-                console.log('all players:', result);
                 if (!result) return;
                 const withCams = result
                     .filter((p: any) => p.steamid && p.vdoNinjaUrl)
                     .map((p: any) => ({ steamid: p.steamid, streamName: p.vdoNinjaUrl }));
-                console.log('players with cams:', withCams);
-                playersCache = withCams;
-                cacheListeners.forEach(fn => fn([...withCams]));
-                setPlayers(withCams);
+                // Опрос каждые 5 с: не перерисовываем камеры, если список не менялся
+                const key = JSON.stringify(withCams);
+                if (key !== JSON.stringify(playersCache)) {
+                    playersCache = withCams;
+                    cacheListeners.forEach(fn => fn([...withCams]));
+                }
+                setPlayers(prev => (JSON.stringify(prev) === key ? prev : withCams));
             } catch {
                 // ignore
             }
@@ -68,22 +73,23 @@ const CameraContainer = ({
         return () => clearInterval(interval);
     }, []);
 
-    // Следим за .obs_cam_video в DOM через MutationObserver
+    // Фолбэк для вызовов без target: ищем .obs_cam_video через MutationObserver.
+    // Дорого (срабатывает на каждую мутацию DOM, т.е. на каждый тик GSI) — поэтому
+    // только если узел не передали явно.
     useEffect(() => {
+        if (target !== undefined) return;
         const find = () => {
             const el = document.querySelector(".obs_cam_video");
-            console.log('🎥 obs_cam_video found:', el);
             if (el) setPortalTarget(el);
         };
         find();
         observerRef.current = new MutationObserver(find);
         observerRef.current.observe(document.body, { childList: true, subtree: true });
         return () => observerRef.current?.disconnect();
-    }, []);
+    }, [target]);
 
-    if (!players.length || !portalTarget) return null;
-    console.log('🎥 portalTarget:', portalTarget);
-    console.log('🎥 players:', players);
+    const mountNode = target !== undefined ? target : portalTarget;
+    if (!players.length || !mountNode) return null;
 
     // Все стримы рендерятся через портал в .obs_cam_video
     // Видимость — только opacity, без mount/unmount
@@ -97,7 +103,7 @@ const CameraContainer = ({
                 />
             ))}
         </>,
-        portalTarget
+        mountNode
     );
 };
 

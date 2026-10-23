@@ -1,0 +1,75 @@
+  // Плашка курьера — над нативными слотами предметов (низ по центру)
+// Компактный индикатор как нативный у доты — слева над абилками
+.courier_bar {
+    position: fixed;
+    bottom: 150px;
+    left: calc(50% + 95px);
+    z-index: 18;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 7px;
+    background: rgba(6, 7, 11, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-top: 2px solid rgba(255, 235, 0, 0.7);
+    border-radius: 4px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.6);
+    pointer-events: none;
+    transform-origin: left center;
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    opacity: 1;
+    transform: translateY(0) scale(1);
+
+    &.hide {
+        opacity: 0;
+        transform: translateY(6px) scale(0.94);
+    }
+
+    .courier_icon {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+
+    .courier_arrow {
+        color: rgba(255, 255, 255, 0.45);
+        font-size: 16px;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .courier_items {
+        display: flex;
+        gap: 3px;
+    }
+
+    // слот как в доте: тёмная рамка, бевел, картинка во всю ширину
+    .courier_item {
+        position: relative;
+        width: 44px;
+        height: 33px;
+        border-radius: 2px;
+        overflow: hidden;
+        background: #05070a;
+        border: 1px solid #000;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.14),
+            inset 0 0 0 1px rgba(120,130,150,0.18),
+            inset 0 -2px 3px rgba(0,0,0,0.7);
+
+        img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        // бейдж количества/зарядов как у доты (правый нижний угол)
+        .courier_charges {
+            position: absolute;
+            right: 2px;
+            bottom: 1px;
+            font-size: 11px;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1;
+            text-shadow: 0 0 3px #000, 0 1px 2px #000, 0 0 3px #000;
+        }
+    }
+}

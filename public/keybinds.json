@@ -10,5 +10,45 @@
     {
         "bind":"Alt+G",
         "action":"game"
+    },
+    {
+        "bind":"Alt+X",
+        "action":"comparison"
+    },
+    {
+        "bind":"Alt+H",
+        "action":"stat_healing"
+    },
+    {
+        "bind":"Alt+C",
+        "action":"stat_camps"
+    },
+    {
+        "bind":"Alt+M",
+        "action":"stat_gpm"
+    },
+    {
+        "bind":"Alt+A",
+        "action":"stat_damage"
+    },
+    {
+        "bind":"Alt+N",
+        "action":"stat_networth"
+    },
+    {
+        "bind":"Alt+L",
+        "action":"stat_lasthits"
+    },
+    {
+        "bind":"Alt+W",
+        "action":"stat_wards"
+    },
+    {
+        "bind":"Alt+R",
+        "action":"roshan"
+    },
+    {
+        "bind":"Alt+Q",
+        "action":"swapSides"
     }
 ]

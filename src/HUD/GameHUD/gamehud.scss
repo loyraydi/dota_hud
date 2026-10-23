@@ -1,77 +1,431 @@
 .top_side_bar {
-    width: 455px;
-    height: 55px;
-    background: rgba(19, 0, 23, 0.9);
+    width: 240px;
+    height: 40px;
     display: flex;
-    justify-content: space-evenly;
+    flex-direction: row;
     align-items: center;
+    gap: 10px;
     color: white;
     position: absolute;
-    font-size: 16px;
-    top:0;
-    left: 0;
+    top: 0;
     transition: opacity 1s;
-    opacity:1;
+    opacity: 1;
+    // Привязка к центру (нативный топбар доты центрирован): внутренний край плашки —
+    // 409px от центра (на 1920 = прежние left/right: 295px). На узких экранах (16:10, 4:3)
+    // боковая группа сжимается к топбару (--side-k из HudStage), чтобы не уйти за край.
+    transform: scale(var(--side-k, 1));
+
+
+    &.radiant {
+        right: calc(50% + 409px);
+        transform-origin: right top;
+        background: linear-gradient(90deg, rgba(var(--color-radiant-rgb, 255, 235, 0), 1) 0%, rgba(0, 0, 0, 1) 95%);
+        justify-content: flex-end;
+        padding: 0 16px 0 0;
+        clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 0 100%);
+        border-radius: 0px 0px 0px 10px;
+    }
+    &.dire {
+        background: linear-gradient(90deg, rgba(0, 0, 0, 1) 0%, rgba(var(--color-dire-rgb, 86, 14, 173), 1) 55%);
+        left: calc(50% + 409px);
+        transform-origin: left top;
+        justify-content: flex-start;
+        padding: 0 0 0 16px;
+        clip-path: polygon(6px 0, 100% 0, 100% 100%, 0 100%);
+        border-radius: 0px 0px 10px 0px;
+    }
     &.hide {
         opacity: 0;
     }
-    .attack {
-        background-repeat: no-repeat;
-        background-position: 0 2px;
-        background-image: url('./../Scoreboard/sword.png');
-        padding-left:23px;
+
+    .tsb_logo {
+        height: 30px;
+        width: 30px;
+        object-fit: contain;
+        flex-shrink: 0;
     }
 
-    &.right {
-        right: 0;
-        left: unset;
-      .logo_and_type {
-            right: unset;
-            left: -92px;
+    .tsb_name {
+        font-size: 18px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: #fff;
+        white-space: nowrap;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    }
+}
+.buyback_bar {
+    position: fixed;
+    top: 67px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    transition: opacity 1s;
+    opacity: 1;
+    &.hide { opacity: 0; }
 
-            img {
-                left: unset;
-                right: 6px;
-            }
+    .buyback_team {
+        display: flex;
+        flex-direction: row;
+        gap: 3px;
 
-            .type_color {
-                left:0;
-                right:unset;
-            }
-        }
+        // под портретами нативного топбара (он центрирован): 548/549px на 1920
+        &.radiant { margin-left: calc(50% - 412px); }
+        &.dire { margin-right: calc(50% - 411px); }
     }
 
-    .logo_and_type {
-        position: absolute;
-        right:-92px;
-        width: 92px;
-        height: 55px;
+    .buyback_slot {
+        width: 60px;
+        height: 22px;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
         overflow: hidden;
-        background: rgba(19, 0, 23, 0.9);
-        img {
-            position: relative;
-            left: 6px;
-            max-width: 75px;
+
+        &.empty {}
+
+        .buyback_available {
+            color: #fff;
+            background: rgba(255, 235, 0, 0.55);
+            border: 1.5px solid rgb(255, 235, 0);
+            padding: 2px 4px;
+            border-radius: 3px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+            white-space: nowrap;
         }
-        .type_color{
-            width: 24px;
-            height: 100%;
-            position: absolute;
-            z-index:999;
-            top:0;
-            right:0;
-            &.radiant {
-                background-color: #FFEB00;
-            }
-            &.dire {
-                background-color: #560EAD;
+        .buyback_cd {
+          color: #fff;
+          background: rgba(22, 22, 22, 0.92);
+          border: 1.5px solid rgb(124, 124, 124);
+          padding: 2px 6px;
+          border-radius: 3px;
+          font-size: 12px;
+          white-space: nowrap;
+        }
+        .buyback_missing {
+            color: #fff;
+            background: rgba(255, 235, 0, 0.55);
+            border: 1.5px solid rgb(255, 235, 0);
+            padding: 2px 5px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+            .gold_icon {
+                width: 11px;
+                height: 11px;
+                object-fit: contain;
+                flex-shrink: 0;
             }
         }
     }
 }
+
+.key_items_bar {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    transition: opacity 1s;
+    opacity: 1;
+    &.hide { opacity: 0; }
+
+    .key_items_team {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 3px;
+
+        // под портретами нативного топбара (он центрирован): 548/549px на 1920
+        &.radiant { margin-left: calc(50% - 412px); }
+        &.dire    { margin-right: calc(50% - 411px); }
+    }
+
+    .key_items_player {
+        width: 60px;
+        display: grid;
+        grid-template-columns: repeat(2, 24px);
+        grid-auto-rows: 24px;
+        gap: 3px;
+        align-content: start;
+        justify-content: center;
+        transition: transform 0.3s ease;
+
+        // мёртв (виден выкуп сверху) — съезжаем вниз, чтобы не наложиться
+        &.shifted { transform: translateY(28px); }
+        // смок/аегис: нативный значок под портретом (~40px на 1080) — уходим под него
+        &.shifted_mark { transform: translateY(34px); }
+
+        &.empty { width: 60px; }
+    }
+
+    .key_item_slot {
+        position: relative;
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+
+        .key_item_icon {
+            position: absolute;
+            inset: 3px;
+            width: calc(100% - 6px);
+            height: calc(100% - 6px);
+            object-fit: cover;
+            border-radius: 50%;
+            transition: filter 0.3s;
+        }
+
+        .key_item_ring {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .key_item_overlay {
+            position: absolute;
+            inset: 3px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .key_item_cd {
+            font-size: 10px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 4px #000, 0 0 4px #000;
+            line-height: 1;
+            text-align: center;
+        }
+
+        &.on_cd .key_item_icon {
+            filter: grayscale(1) brightness(0.45);
+        }
+
+        &.ready .key_item_icon {
+            filter: none;
+        }
+    }
+}
+
+.topbar_hero_wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    overflow: visible;
+
+    &.empty { width: 36px; }
+
+    .topbar_ult_cd {
+        height: 13px;
+        min-width: 30px;
+        padding: 0 4px;
+        border-radius: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.ready {
+            background: rgba(0, 180, 0, 0.25);
+            border: 1px solid rgba(0, 220, 0, 0.8);
+
+            .ready_dot {
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background: #00ff44;
+                box-shadow: 0 0 4px #00ff44;
+                display: block;
+            }
+        }
+
+        &.on_cd {
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(200, 0, 0, 0.9);
+
+            span {
+                font-size: 9px;
+                font-weight: 900;
+                color: #ff4444;
+                line-height: 1;
+                letter-spacing: 0.02em;
+            }
+        }
+
+        &.empty, &.instant {
+            background: transparent;
+            border: 1px solid transparent;
+        }
+    }
+}
+
+.ult_bar {
+    position: fixed;
+    top: 50px; // under the topbar heroes row
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    transition: opacity 1s;
+    opacity: 1;
+    &.hide { opacity: 0; }
+
+    .ult_team {
+        display: flex;
+        flex-direction: row;
+        gap: 3px;
+
+        &.radiant { margin-left: 548px; }
+        &.dire    { margin-right: 549px; }
+    }
+
+    .ult_slot {
+        width: 60px;
+        height: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 2px;
+
+        &.empty {
+            background: transparent;
+        }
+
+        &.ready {
+            background: rgba(0, 180, 0, 0.2);
+            border: 1px solid rgba(0, 220, 0, 0.7);
+
+            .ult_ready_dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: #00ff55;
+                box-shadow: 0 0 5px #00ff55;
+                display: block;
+            }
+        }
+
+        &.on_cd {
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(200, 0, 0, 0.85);
+
+            .ult_cd_text {
+                font-size: 10px;
+                font-weight: 900;
+                color: #ff4444;
+                line-height: 1;
+                letter-spacing: 0.03em;
+                text-shadow: 0 0 4px rgba(0,0,0,0.9);
+            }
+        }
+    }
+}
+
+.ult_side_bar {
+    position: fixed;
+    top: 0;
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 2px;
+    padding: 0;
+    pointer-events: none;
+    transition: opacity 1s;
+    opacity: 1;
+    &.hide { opacity: 0; }
+
+    // Снаружи от плашек команд: на 1920 правый край radiant = 275px (= центр − 685),
+    // левый край dire = 1645px. Сжимается вместе с плашкой (--side-k).
+    &.radiant { right: calc(50% + 409px + 276px * var(--side-k, 1)); transform: scale(var(--side-k, 1)); transform-origin: right top; }
+    &.dire    { left: calc(50% + 409px + 276px * var(--side-k, 1)); transform: scale(var(--side-k, 1)); transform-origin: left top; flex-direction: row-reverse; }
+
+    .ult_icon_slot {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        border-radius: 0;
+        overflow: hidden;
+
+        &.empty, &.instant { opacity: 0; pointer-events: none; }
+
+        .ult_icon_img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0;
+            transition: filter 0.3s;
+            display: block;
+        }
+
+        // cooldown pie-sweep overlay (CSS conic-gradient)
+        .ult_cd_sweep {
+            position: absolute;
+            inset: 0;
+            border-radius: 0;
+            background: conic-gradient(
+                rgba(0,0,0,0.72) var(--sweep),
+                transparent var(--sweep)
+            );
+        }
+
+        .ult_icon_overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1px;
+        }
+
+        .ult_icon_cd {
+            font-size: 9px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 4px #000, 0 0 4px #000;
+            line-height: 1;
+            text-align: center;
+        }
+
+        &.on_cd .ult_icon_img {
+            filter: grayscale(0.6) brightness(0.6);
+        }
+        &.ready .ult_icon_img {
+            filter: none;
+        }
+        &.ready::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1.5px solid rgba(0, 255, 80, 0.7);
+            box-shadow: inset 0 0 4px rgba(0,255,80,0.3);
+            pointer-events: none;
+        }
+    }
+}
+
 .commercial {
     width: 379px;
     height: 215px;
@@ -96,7 +450,7 @@
         max-width:70%;
         max-height: 120px;
 
-        
+
         transition: opacity 1s;
         opacity:1;
         &.hide {
@@ -123,62 +477,112 @@ body {
     display: flex;
     flex-direction: column;
     position:fixed;
-    align-items: center;
+    align-items: stretch;
+    width: 295px;
     bottom:0;
-    left:282px;
+    left:410px;
+    transform: translateX(-50%);
     transition: opacity 1s;
     opacity:1;
     &.hide {
         opacity: 0;
     }
     .player_picture {
-        width: 260px;
-        height: 170px;
+        width: 240px;
+        height: 177px;
         display: flex;
-
         justify-content: center;
-        background-color: rgba(1, 3, 20, 1);
-        align-items: flex-end;
+        align-items: center;
         position: relative;
+        overflow: hidden;
 
         img {
             max-height: 100%;
             max-width: 100%;
+            display: block;
+        }
+
+        .obs_cam_video {
+            background: transparent !important;
+            clip-path: path(evenodd, 'M 3 0 L 200 0 L 255 -200 L 205 177 L 15 177 L 1 75 L 10 15 L 7 0 Z M 218 153 m -19 0 a 19 19 0 1 0 38 0 a 19 19 0 1 0 -38 0 Z');
         }
     }
+    &.wide-bar .player_picture .obs_cam_video {
+        clip-path: path(evenodd, 'M 3 0 L 200 0 L 290 -490 L 188 177 L 15 177 L 1 75 L 10 15 L 7 0 Z M 205 160 m -18 0 a 18 18 0 1 0 36 0 a 18 18 0 1 0 -36 0 Z');
+    }
     .player_info {
-        height:37px;
+        height: 40px;
         width: 100%;
-        display:flex;
-        align-items: flex-end;
-        background-color: rgba(19, 0, 23, 0.9);
-        .team_bar {
-            width: 15px;
-            height: 100%;
-            &.radiant {
-                
-                background-color: #FFEB00;
-            
-            }
-            &.dire {
-                
-        background-color: #560EAD;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 56px 0 10px;
+        justify-content: flex-start;
+        position: relative;
+        box-sizing: border-box;
+        clip-path: path(evenodd, 'M 0 0 L 240 0 L 240 40 L 6 40 Z');
+
+        &.dire {
+            background: linear-gradient(90deg, rgba(0, 0, 0, 1) 14%, rgba(var(--color-dire-rgb, 86, 14, 173), 1) 55%);
+        }
+        &.radiant {
+            background: linear-gradient(90deg, rgb(0, 0, 0) 14%, rgb(var(--color-radiant-rgb, 197, 181, 8)) 55%);
+        }
+
+        .player_info_logo {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.08);
+            flex-shrink: 0;
+            padding: 3px;
+            box-sizing: border-box;
+        }
+
+        .player_info_name {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+            overflow: hidden;
+            flex: 1;
+            min-width: 0;
+
+            .marquee_inner {
+                display: inline-block;
+                white-space: nowrap;
+                // Не infinite: бесконечная анимация заставляет прозрачный оверлей
+                // перерисовываться каждый кадр поверх игры. 2 круга и стоп на начале имени.
+                &.running { animation: marquee 6s linear 2; }
             }
         }
-        .team_box{
-            width: 60px;
-            height: 100%;
-            z-index:2;
+
+        @keyframes marquee {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .player_info_level {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 2px solid #b8860b;
+            background: radial-gradient(circle, rgba(60,40,10,1) 0%, rgba(20,15,5,1) 100%);
+            color: #ffd700;
+            font-size: 14px;
+            font-weight: 800;
             display: flex;
-        }
-        .team_logo {
-            display:flex;
             align-items: center;
             justify-content: center;
-            img {
-                max-width:30px;
-            }
+            flex-shrink: 0;
+            margin-right: 6px;
         }
+
+        // legacy — kept for compat
+        .team_bar { display: none; }
         .username {
             color: white;
             font-size: 16px;
@@ -187,28 +591,15 @@ body {
             height: 100%;
             display:flex;
             padding-left:20px;
+            justify-content: center;
             text-transform: uppercase;
             align-items: center;
             position: relative;
             left: -8px;
-            .player_kills {
-                margin-left: auto;
-                margin-right: 20px;
-                font-weight: 500;
-                display: flex;
-                height: 100%;
-                font-size: 14px;
-
-                .player_kill {
-                    background-repeat: no-repeat;
-                    background-position: top 2px center;
-                    width: 20px;
-                    background-size: 18px;
-                    display: flex;
-                    justify-content: center;
-                    align-items: flex-end;
-                }
-            }
+            flex-direction: row;
         }
     }
 }
+
+
+

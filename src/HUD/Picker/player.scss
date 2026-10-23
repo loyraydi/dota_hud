@@ -1,233 +1,511 @@
+// ─── Wrapper ──────────────────────────────────────────────────────────────────
 .background {
-    position: absolute;
-    background-color: rgba(27, 30, 69, 0.9);
-    width: 100%;
-    height: 100%;
-    
-    transition: opacity 1s;
-    opacity:1;
-    &.hide {
-        opacity: 0;
-    }
+  position: absolute;
+  background-color: rgba(15, 15, 15, 0.27);
+  width: 100%; height: 100%;
+  transition: opacity 1s; opacity: 1;
+  &.hide { opacity: 0; }
 }
 .draft-screen-container {
-    transition: opacity 1s;
-    opacity:1;
-    &.hide {
-        opacity: 0;
-    }
-}
-.draft-container {
-    display: flex;
-    position: fixed;
-    margin-left:50%;
-    transform: translateX(-50%);
-    bottom: 104px;
+  transition: opacity 1s; opacity: 1;
+  &.hide { opacity: 0; }
 }
 
-.tournament_info {
-    width: 139px;
-    height: 145px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    .bo {
-        height: 33px;
-        width: 100%;
-        background-color: rgba(19, 0, 23, 0.9);
-        color: white;
-        display: flex;
-        align-items: center;
-        font-weight: 700;
-        justify-content: center;
-        text-transform: uppercase;
-    }
-    .picker_and_logo {
-        display: flex;
-        flex: 1;
-        background-color: rgba(19, 0, 23, 0.9);
-        background-repeat: no-repeat;
-        background-position: center;
-        justify-content: space-between;
-        background-size: cover;
-        .side_pick{
-            display: flex;
-            flex: 1;
-            align-items: center;
-            justify-content: center;
-            background-repeat: no-repeat;
-            background-position: center;
-            max-width: 45px;
-        
-            &.left {
-                background-image: url('./leftPick.png');
-                &.active {
-                    background-image: url('./leftPickActive.png');
-                }
-            }
-            &.right {
-                background-image: url('./rightPick.png');
-                &.active {
-                    background-image: url('./rightPickActive.png');
-                }
-            }
-        }
-    }
+// ─── Контейнер ────────────────────────────────────────────────────────────────
+.draft-rows-container {
+  position: fixed;
+  bottom: 30px;
+  // Драфт + спонсор = блок 1920px. На широких экранах центрируется (--wide-x),
+  // на узких (16:10, 4:3) сжимается к левому нижнему углу (--narrow-k), чтобы не обрезаться.
+  left: calc(10px + var(--wide-x, 0px));
+  transform: scale(var(--narrow-k, 1));
+  transform-origin: left bottom;
+  display: flex;
+  flex-direction: column;
+  width: auto;
+  // Общий фон: тёмный центр + оттенки команд по краям (radiant сверху, dire снизу)
+  background:
+          linear-gradient(180deg,
+                  rgba(var(--color-radiant-rgb, 255, 235, 0), 0.12) 0%,
+                  rgba(12,12,14,0.96) 35%,
+                  rgba(12,12,14,0.96) 65%,
+                  rgba(var(--color-dire-rgb, 80, 30, 140), 0.14) 100%);
+  border-radius: 4px;
+  box-shadow: 0 0 24px rgba(0,0,0,0.5);
+  // Подложка под весь блок (info + карточки)
+  padding: 0;
+  overflow: hidden;
 }
-.players_draft {
-    display: flex;
 
-    &.radiant {
-        flex-direction: row-reverse;
-    }
-}
-.players_draft_ban {
-    display: flex;
-    &.radiant {
-        flex-direction: row-reverse;
-    }
-}
-.team_draft_ban {
-    position: absolute;
-    &.radiant {
-        right: 0;
-    }
-    &.dire {
-        left: 0;
-    }
-    top: 4px;
-}
-.player_ban {
-    margin: 0 2px;
-    .player_preview {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        width: 36px;
-        height: 36px;
-        img {
-            height: 36px;
-        }
-    }
-}
-.player_draft {
-    width:123px;
-    height:145px;
-    display:flex;
-    flex-direction: column;
-    margin:0 1.5px;
-    &.dire {
-        .draft_status {
-            background-color: #BD1313;
-        }
-    }
-    &.radiant {
-        .draft_status {
-            background-color: #16349E;
-        }
-    }
-    .player_preview {
-        flex: 1;
-        background-color:rgba(19, 0, 23, 0.9);
-        display: flex;
-        background-position: center;
-        background-repeat: no-repeat;
-        .background-imgs {
-            flex:1;
-            opacity:0.3;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-    }
-    .draft_status {
-        width:100%;
-        height:21px;
-        color: white;
-        text-align: center;
-        font-weight: 700;
-        font-size: 15px;
-        &.active {
-            
-        }
-        &.hidden {
-            height: 7px;
-        }
-    }
-}
-.team_info_container {
-    display: flex;
-    height: 76px;
-    width: 1390px;
-    background-color: rgba(19, 0, 23, 0.9);
-    color: white;
-    position: fixed;
-    margin-left:50%;
-    transform: translateX(-50%);
-    bottom: 24px;
-    .timer {
-        width: 139px;
-        height: 100%;
-        background-color: #0E0018;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        .label {
-            font-size: 15px;
-            text-transform: uppercase;
-            opacity: 0.7;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-        }
-        .timer-time {
-            font-weight: 700;
+// ─── Ники игроков ─────────────────────────────────────────────────────────────
+.draft_player_names {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  margin-left: calc(225px + 2px);
 
-            font-size: 22px;
-        }
-    }
-    .team_info {
-        flex:1;
-        display: flex;
-        position: relative;
-        .team_info_score {
-            width: 60px;
-            display:flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 38px;
-            font-weight: 700;
-        }
-        .team_squad {
-            display: flex;
-            flex-direction: column;
-            .top_bar {
-                font-size: 24px;
-            }
-            .bottom_bar {
-                font-size: 15px;
-            }
-            > div {
-                flex: 1;
-                display: flex;
-                align-items: center;
-            }
-        }
-        &.radiant {
-            .team_info_score {
-                background-color: #16349E;
-                margin-right: 8px;
-            }
-        }
-        &.dire {
-            flex-direction: row-reverse;
-            .team_info_score {
-                background-color: #BD1313;
-                margin-left: 8px;
-            }
-            .team_squad {
-                align-items: flex-end;
-            }
-        }
-    }
 }
+
+.draft_player_name_cell {
+  width: 120px;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
+// ─── Строка команды ───────────────────────────────────────────────────────────
+.team_row {
+  display: flex;
+  align-items: stretch;
+  height: 140px;
+  overflow: visible; // пикнутые герои выглядывают вверх за пределы строки
+}
+
+// ─── Карточка команды 225×140 ─────────────────────────────────────────────────
+.team_row_info {
+  flex-shrink: 0;
+  width: 225px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  .team_row.radiant & {
+    background: linear-gradient(135deg, rgba(var(--color-radiant-dark-rgb, 142, 129, 8), 0.95) 0%, rgba(var(--color-radiant-dark-rgb, 142, 129, 8), 0.3) 100%), #0f0f0c;
+    border: 1.5px solid rgba(var(--color-radiant-rgb, 255, 235, 0), 0.5);
+  }
+  .team_row.dire & {
+    background: linear-gradient(135deg, rgba(var(--color-dire-dark-rgb, 45, 18, 80), 0.95) 0%, rgba(var(--color-dire-dark-rgb, 45, 18, 80), 0.3) 100%), #0f0819;
+    border: 1.5px solid rgba(var(--color-dire-rgb, 110, 45, 180), 0.5);
+  }
+}
+
+.team_row_pick_label {
+  align-self: flex-end;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.team_row_logo_name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.team_row_logo {
+  width: 52px; height: 52px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  img { max-width: 100%; max-height: 100%; object-fit: contain; }
+}
+
+.team_row_logo_placeholder {
+  width: 52px; height: 52px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900;
+  color: rgba(255,255,255,0.2);
+}
+
+.team_row_name {
+  font-size: 17px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  color: #fff; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; line-height: 1.1;
+}
+
+.team_row_bottom_bar {
+  display: flex; align-items: center; gap: 5px;
+}
+
+.team_row_side {
+  font-size: 9px; font-weight: 800; letter-spacing: 0.1em;
+  &.radiant { color: var(--color-radiant-light, #ffeb00); }
+  &.dire    { color: var(--color-dire-light, #9B59B6); }
+}
+
+.series_win_boxes { display: flex; gap: 3px; align-items: center; }
+.series_win_box {
+  width: 17px; height: 17px; border-radius: 5px;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  background: transparent;
+  &.filled {
+    &.radiant { background: var(--color-radiant, #edde42); border-color: var(--color-radiant, #ffeb00); }
+    &.dire    { background: var(--color-dire, #7B2FBE); border-color: var(--color-dire, #7B2FBE); }
+  }
+}
+
+.team_row_bonus {
+  font-size: 22px; font-weight: 800; color: #fff;
+  &.urgent { color: #ff4444; }
+}
+
+// ─── Слоты героев ─────────────────────────────────────────────────────────────
+.team_row_slots {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+// ─── Карточка героя 120×140 ───────────────────────────────────────────────────
+.draft_slot {
+  width: 120px;
+  height: 140px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+
+  // Карточка как контейнер: тонкая рамка + градиент-фон команды
+  &.radiant {
+    border: 1px solid rgba(var(--color-radiant-rgb, 255, 235, 0), 0.25);
+    &.active {
+      border-color: var(--color-radiant, #ffeb00);
+      box-shadow: 0 0 12px rgba(var(--color-radiant-rgb, 255, 235, 0), 0.5), inset 0 0 0 1px var(--color-radiant, #ffeb00);
+    }
+  }
+  &.dire {
+    border: 1px solid rgba(var(--color-dire-rgb, 123, 47, 190), 0.3);
+    &.active {
+      border-color: var(--color-dire, #7B2FBE);
+      box-shadow: 0 0 12px rgba(var(--color-dire-rgb, 123, 47, 190), 0.5), inset 0 0 0 1px var(--color-dire, #7B2FBE);
+    }
+  }
+
+
+  // ── Пикнутый герой: overflow снизу обрезан маской, свечение через ::after
+  &.filled.pick {
+    overflow: visible;
+    z-index: 5;
+    background: none !important;
+    border: none !important;
+    animation: hero-pick-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+    &.radiant { z-index: 6; }
+
+    // Маска на ВИДЕО (не на слоте!) — иначе filter/overflow создаёт стакинг-контекст.
+    // С transform-origin: center 65% и scale(1.6) низ слота = ~13% видео от его низа.
+    // transparent 13% = всё ниже низа слота (ноги) → прозрачно.
+    // black 42%       = плавный fade снизу вверх внутри слота.
+    .draft_slot_video {
+      mask-image: linear-gradient(to top, transparent 0%, transparent 13%, black 42%);
+      -webkit-mask-image: linear-gradient(to top, transparent 0%, transparent 13%, black 42%);
+    }
+
+    // Свечение через ::after — НЕ замаскировано (маска только на video, не на слоте)
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: -2px; right: -2px;
+      height: 140px;
+      z-index: 4; pointer-events: none;
+    }
+    &.radiant::after {
+      background: radial-gradient(ellipse 90% 50% at 50% 100%,
+        rgba(var(--color-radiant-rgb, 255, 235, 0), 0.50) 0%, rgba(var(--color-radiant-rgb, 255, 235, 0), 0.12) 55%, transparent 100%);
+    }
+    &.dire::after {
+      background: radial-gradient(ellipse 90% 50% at 50% 100%,
+        rgba(var(--color-dire-light-rgb, 140, 50, 220), 0.55) 0%, rgba(var(--color-dire-rgb, 123, 47, 190), 0.15) 55%, transparent 100%);
+    }
+  }
+}
+
+@keyframes hero-pick-enter {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.draft_slot_video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 12%;
+  transform-origin: center 65%;
+  transform: scale(1.3);
+}
+
+.draft_slot_img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  // Забаненный — ч/б приглушённый, БЕЗ креста
+  filter: grayscale(100%) brightness(0.45) contrast(0.9);
+}
+.draft_slot_ban_video {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: fill;
+  object-position: center center;
+
+
+  filter: grayscale(100%) brightness(0.6) contrast(1.1);
+}
+.draft_slot_ban_cross {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 5rem;
+  font-weight: 900;
+
+  color: rgba(255, 40, 40, 0.15);
+  text-shadow: 0 0 15px rgba(255, 0, 0, 0.22);
+
+  z-index: 10;
+  pointer-events: none;
+}
+
+.draft_slot_empty_ban {
+  font-size: 44px; font-weight: 300;
+  color: rgba(255,255,255,0.1);
+  user-select: none;
+}
+
+.draft_slot_empty_pick {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 18px; box-sizing: border-box;
+  position: relative; z-index: 1;
+}
+
+.draft_slot_team_logo {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  filter: grayscale(100%) brightness(0.35);
+}
+
+.draft_slot_team_logo_fallback {
+  font-size: 28px; font-weight: 900;
+  color: rgba(255,255,255,0.08);
+}
+
+.draft_slot_active_timer {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 4px; z-index: 4;
+  background: rgba(0,0,0,0.15);
+}
+
+.draft_slot_active_type {
+  font-size: 11px; font-weight: 800;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  .draft_slot.radiant & { color: var(--color-radiant-light, #ffeb00); }
+  .draft_slot.dire    & { color: var(--color-dire-light, #A78BFA); }
+}
+
+.draft_slot_active_time {
+  font-size: 30px; font-weight: 900; line-height: 1;
+  .draft_slot.radiant & { color: var(--color-radiant-light, #ffeb00); }
+  .draft_slot.dire    & { color: var(--color-dire-light, #A78BFA); }
+  animation: timer-pulse 1s ease-in-out infinite;
+}
+
+@keyframes timer-pulse {
+  0%,100%{opacity:1} 50%{opacity:0.45}
+}
+
+// ─── FIX 2: BEST OF — между карточками команд, слева ─────────────────────────
+.draft_divider {
+  // Ширина = только карточка команды, текст слева
+  width: calc(225px + 2px + 12 * 120px + 11 * 2px);
+  height: 22px;
+  display: flex;
+  align-items: center;
+  background: rgba(8,8,8,0.6);
+  position: relative;
+}
+
+.draft_bo_label {
+  // Позиция: по центру карточки команды (225px)
+  width: 225px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+// Горизонтальная линия справа от лейбла
+.draft_divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+  margin: 0 8px;
+}
+
+// ─── FIX 1: Phase Bar — точное выравнивание с карточками ─────────────────────
+.draft_phase_bar_wrap {
+  background: transparent;
+  width: calc(225px + 2px + 12 * 120px + 11 * 2px);
+  overflow: hidden;
+}
+
+.phase_labels {
+  display: flex;
+  height: 14px;
+  padding-left: calc(225px + 2px);
+  box-sizing: border-box;
+}
+
+.phase_labels_inner {
+  display: flex;
+  // Ровно 12 сегментов × 120px + 11 gaps × 2px
+  width: calc(12 * 120px + 11 * 2px);
+  flex-shrink: 0;
+}
+
+.phase_label_group {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  &::before, &::after {
+    content: '';
+    position: absolute; top: 50%;
+    height: 1px; background: rgba(255,255,255,0.08);
+    width: calc(50% - 14px);
+  }
+  &::before { left: 2px; }
+  &::after  { right: 2px; }
+}
+
+.phase_label_text {
+  font-size: 7px; font-weight: 700;
+  letter-spacing: 0.15em; color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  background: rgba(8,8,8,0.8); padding: 0 3px;
+  position: relative; z-index: 1;
+}
+
+.draft_phase_bar {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding-left: calc(225px + 2px);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+// Каждый сегмент = ровно 120px как карточка, зигзаг строго внутри
+.phase_seg {
+  width: 120px;
+  flex-shrink: 0;
+  height: 34px;
+  position: relative;
+  overflow: visible;
+  & + & { margin-left: 2px; }
+}
+
+.team_info_container, .draft-container, .tournament_info { display: none !important; }
+
+// ─── ДОРАБОТКА: ники с диагональными разделителями ───────────────────────────
+.draft_player_names {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  margin-left: calc(225px + 2px);
+  width: calc(12 * 120px + 11 * 2px);
+  // Ники только над пик-слотами, но визуально растянуты на всю ширину
+}
+
+.player_name_seg {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  // Диагональный скос справа
+
+
+  .draft_player_names.radiant & {
+    background: linear-gradient(90deg, rgba(var(--color-radiant-rgb, 255, 235, 0), 1) 0%, rgba(var(--color-dire-rgb, 135, 0, 245), 0.6) 100%);
+  }
+  .draft_player_names.dire & {
+    background: linear-gradient(90deg, rgb(var(--color-dire-rgb, 110, 45, 180)), rgba(var(--color-radiant-rgb, 238, 255, 0), 0.6));
+  }
+
+}
+
+.player_name_text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 6px;
+}
+
+// ─── Halftone слот (под твою картинку) ───────────────────────────────────────
+.team_row_halftone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 90px;
+  height: 36px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.7;
+  // Сюда подставь background-image со своей halftone картинкой:
+  // background-image: url('...');
+  // background-size: contain;
+  // background-repeat: no-repeat;
+
+  &.radiant {
+    // временный CSS-паттерн пока нет картинки
+    background-image: radial-gradient(circle, var(--color-radiant, #ffeb00) 1px, transparent 1.5px);
+    background-size: 6px 6px;
+    mask-image: linear-gradient(135deg, #000 0%, transparent 70%);
+    -webkit-mask-image: linear-gradient(135deg, #000 0%, transparent 70%);
+  }
+  &.dire {
+    background-image: radial-gradient(circle, var(--color-dire, #7B2FBE) 1px, transparent 1.5px);
+    background-size: 6px 6px;
+    mask-image: linear-gradient(135deg, #000 0%, transparent 70%);
+    -webkit-mask-image: linear-gradient(135deg, #000 0%, transparent 70%);
+  }
+}
+
+// ─── Место под спонсора справа ───────────────────────────────────────────────
+// Контейнер сдвинут влево (left:10px), справа естественным образом
+// остаётся ~220px до края экрана 1920px под систему рекламы.
+// Спонсор рендерится отдельной системой (api.hud.setAdvertisingConfig),
+// поверх HUD, поэтому здесь только резервируем пространство — ничего не делаем.

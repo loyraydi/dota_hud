@@ -1,59 +1,93 @@
 import React from 'react';
-import { Draft, DraftEntry, Faction, TeamDraft } from 'dotagsi';
-import Snow from "./snowflake.png";
+import { DraftEntry, Faction } from 'dotagsi';
 import { getAssetURL } from '../../api/api';
-const PlayerPick = ({ entry, type, active }: { entry: DraftEntry, type: Faction, active: boolean }) => {
-    const order = entry.order + 1;
-    let lastPart = 'th';
-    if (order === 1) {
-        lastPart = 'st';
-    } else if (order === 2) {
-        lastPart = 'nd';
-    } else if (order === 3) {
-        lastPart = 'rd';
-    }
-    let text = `${order}${lastPart} PICK`;
-    if (!entry.class) {
-        text = '';
-    }
-    if (active) {
-        text = 'PICKING...';
-    }
-    return <div className={`player_draft ${type} ${active ? 'active' : ''}`}>
-        <div className="player_preview">
-            <div className="background-imgs">
-            </div>
-            {entry.class ? <video muted={true} autoPlay={true} loop={true} width="123">
 
-                <source src={getAssetURL(entry.class, "heroes_animated")}
-                    type="video/webm" />
-
-
-                Sorry, your browser doesn't support embedded videos.
-            </video> : null}
-        </div>
-        <div className={`draft_status ${!text ? 'hidden' : ''}`}>
-            {text}
-        </div>
-    </div>
+interface DraftSlotProps {
+    entry: DraftEntry;
+    type: Faction;
+    active: boolean;
+    timeRemaining?: number;
+    teamLogoUrl?: string | null;
 }
 
-export const PlayerBan = ({ entry, type, active }: { entry: DraftEntry, type: Faction, active: boolean }) => {
-    const order = entry.order + 1;
+const fmt = (sec: number) => {
+    const s = Math.max(0, Math.round(sec));
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
 
-    if (!entry.class) {
+const DraftSlot = ({ entry, type, active, timeRemaining, teamLogoUrl }: DraftSlotProps) => {
+    const isPick = entry.type === 'pick';
+    const hasHero = !!entry.class;
 
-        return <div className={`player_ban ${type} ${active ? 'active' : ''}`}>
-            <div className="player_preview" style={{backgroundColor:'#0E0018'}}>
-            </div>
+    return (
+        <div className={[
+            'draft_slot', type,
+            isPick ? 'pick' : 'ban',
+            active  ? 'active'  : '',
+            hasHero ? 'filled'  : 'empty',
+        ].filter(Boolean).join(' ')}>
+
+            {/* ── Заполненный пик — видео героя ── */}
+            {hasHero && isPick && (
+                <video
+                    className="draft_slot_video"
+                    muted autoPlay loop playsInline
+                    disablePictureInPicture
+                >
+                    <source src={getAssetURL(entry.class!, 'draft_animated')} type="video/webm" />
+                </video>
+            )}
+
+            {/* ── Заполненный бан — ч/б видео ──
+                 Проигрывается один раз и замирает на последнем кадре (= первому, ролик
+                 зациклен): 14 банов × бесконечный VP9 + grayscale-фильтр на каждом кадре
+                 давали половину нагрузки драфта. */}
+            {hasHero && !isPick && (
+                <>
+                    <video
+                        className="draft_slot_ban_video"
+                        muted autoPlay playsInline
+                        disablePictureInPicture
+                    >
+                        <source
+                            src={getAssetURL(entry.class!, 'heroes_animated')}
+                            type="video/webm"
+                        />
+                    </video>
+                    <div className="draft_slot_ban_cross">✕</div>
+                </>
+            )}
+
+            {/* ── Пустой бан (неактивный) — просто крест ── */}
+            {!hasHero && !isPick && !active && (
+                <div className="draft_slot_empty_ban">✕</div>
+            )}
+
+            {/* ── Пустой пик — логотип команды ч/б ── */}
+            {!hasHero && isPick && !active && (
+                <div className="draft_slot_empty_pick">
+                    {teamLogoUrl
+                        ? <img src={teamLogoUrl} alt="" className="draft_slot_team_logo" />
+                        : <span className="draft_slot_team_logo_fallback">—</span>
+                    }
+                </div>
+            )}
+
+            {/* ── Активная карточка — тип + таймер ── */}
+            {active && !hasHero && timeRemaining !== undefined && (
+                <div className="draft_slot_active_timer">
+                    <span className="draft_slot_active_type">{isPick ? 'PICK' : 'BAN'}</span>
+                    <span className="draft_slot_active_time">{fmt(timeRemaining)}</span>
+                </div>
+            )}
         </div>
-    }
+    );
+};
 
-    return <div className={`player_ban ${entry.order} ${type} ${active ? 'active' : ''}`}>
-        <div className="player_preview">
-            <img src={getAssetURL(entry.class, "heroes")} />
-        </div>
-    </div>
-}
-
-export default PlayerPick;
+// entry — новый объект на каждом тике GSI; слот перерисовывается только при реальной смене
+export default React.memo(DraftSlot, (a, b) =>
+    a.entry.class === b.entry.class && a.entry.type === b.entry.type && a.entry.order === b.entry.order &&
+    a.type === b.type && a.active === b.active && a.teamLogoUrl === b.teamLogoUrl &&
+    (a.timeRemaining === undefined ? b.timeRemaining === undefined
+        : b.timeRemaining !== undefined && Math.round(a.timeRemaining) === Math.round(b.timeRemaining))
+);

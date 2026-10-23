@@ -4,8 +4,12 @@ const getMediaMTXBase = () =>
     (window as any).MEDIAMTX_URL || "https://meowhud.ru";
 
 const ICE_SERVERS = [
-    { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:185.252.146.157:3478" },
+    {
+        urls: "turn:185.252.146.157:3478",
+        username: "meow",
+        credential: "743f33608442010fe7778e67fa40d83105692bc960eeca6b",
+    },
 ];
 
 const ICE_GATHER_TIMEOUT = 2000;
@@ -144,7 +148,6 @@ const CameraView = ({ streamName, visible }: Props) => {
             video.pause();
         }
     }, [visible, connected]);
-    console.log('🎥 CameraView render, streamName:', streamName, 'visible:', visible);
     return (
 
         <video

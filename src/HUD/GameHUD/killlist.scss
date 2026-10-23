@@ -1,0 +1,69 @@
+// Продолжение нативного блока «У / С / П» (левый верх, 1080p: x 0–190, y 60–113).
+// Левый край экрана — без --wide-x: этот блок у доты прижат к краю.
+.kill_list {
+    position: fixed;
+    top: 60px;
+    left: 188px;
+    height: 53px;
+    z-index: 18;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 18px 0 12px;
+    // тот же тёмный полупрозрачный фон, что у нативного блока, гаснет вправо
+    background: linear-gradient(90deg, rgba(8, 10, 14, 0) 0%, rgba(8, 10, 14, 0.6) 10px, rgba(8, 10, 14, 0.5) 70%, rgba(8, 10, 14, 0) 100%);
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+    opacity: 1;
+
+    &.hide { opacity: 0; }
+}
+
+.kill_list_hero {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.9));
+    }
+
+    // полоска цвета команды жертвы под иконкой
+    &::after {
+        content: '';
+        position: absolute;
+        left: 5px;
+        right: 5px;
+        bottom: -3px;
+        height: 2px;
+        border-radius: 1px;
+        background: rgba(255, 255, 255, 0.4);
+    }
+    &.radiant::after { background: rgb(var(--color-radiant-rgb, 197, 181, 8)); }
+    &.dire::after    { background: rgb(var(--color-dire-rgb, 86, 14, 173)); }
+
+    // свежее убийство — одна вспышка при появлении, без бесконечной анимации
+    &.latest img { animation: kill_list_pop 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 1; }
+
+    // счётчик как заряды у доты — правый нижний угол
+    .kill_list_count {
+        position: absolute;
+        right: -3px;
+        bottom: -2px;
+        font-size: 12px;
+        font-weight: 900;
+        color: #fff;
+        line-height: 1;
+        text-shadow: 0 0 3px #000, 0 1px 2px #000, 0 0 3px #000;
+    }
+}
+
+@keyframes kill_list_pop {
+    0%   { transform: scale(1.5); filter: drop-shadow(0 0 6px rgba(255, 80, 60, 0.95)); }
+    100% { transform: scale(1);   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.9)); }
+}

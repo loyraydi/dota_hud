@@ -1,0 +1,55 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap");
+
+/* Плавающий водяной знак внутри сцены (координаты — худ-пиксели 1920×1080).
+   Позиция в процентах сцены, медленно обходит весь кадр: кадрированием не убрать. */
+.dota-watermark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    pointer-events: none;
+    will-change: left, top;
+    animation: dota-watermark-roam 150s linear infinite;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+
+    padding: 8px 20px;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+
+    .dota-watermark-label {
+        font-family: "Montserrat", sans-serif;
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.42);
+        white-space: nowrap;
+    }
+
+    .dota-watermark-url {
+        font-family: "Montserrat", sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.58);
+        white-space: nowrap;
+    }
+}
+
+/* Якорь — центр элемента (translate -50%), точки в пределах 9..90% сцены. */
+@keyframes dota-watermark-roam {
+    0%   { left: 13%; top: 16%; transform: translate(-50%, -50%); }
+    12%  { left: 86%; top: 12%; transform: translate(-50%, -50%); }
+    25%  { left: 90%; top: 46%; transform: translate(-50%, -50%); }
+    37%  { left: 84%; top: 85%; transform: translate(-50%, -50%); }
+    50%  { left: 50%; top: 90%; transform: translate(-50%, -50%); }
+    62%  { left: 14%; top: 85%; transform: translate(-50%, -50%); }
+    75%  { left: 10%; top: 50%; transform: translate(-50%, -50%); }
+    87%  { left: 30%; top: 30%; transform: translate(-50%, -50%); }
+    100% { left: 13%; top: 16%; transform: translate(-50%, -50%); }
+}

@@ -7,7 +7,7 @@ interface AvatarLoader {
 
 export const avatars: { [steamid: string]: AvatarLoader } = {};
 
-export const loadAvatarURL = (steamid: string) => {
+export const loadAvatarURL = (steamid: string): string | undefined => {
     if (!steamid) return;
     if (avatars[steamid]) return avatars[steamid].url;
 
@@ -17,8 +17,9 @@ export const loadAvatarURL = (steamid: string) => {
             api.players
                 .getAvatarURLs(steamid)
                 .then((result) => {
-                    avatars[steamid].url = result.custom || result.steam;
-                    resolve(result.custom || result.steam);
+                    const url = result.custom || result.steam || "";
+                    avatars[steamid].url = url;
+                    resolve(url);
                 })
                 .catch(() => {
                     delete avatars[steamid];
@@ -26,5 +27,6 @@ export const loadAvatarURL = (steamid: string) => {
                 });
         }),
     };
+
     return undefined;
 };
