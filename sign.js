@@ -47,11 +47,15 @@ const sign = () => {
         return true;
     }
 
-    // ── Read HUD metadata for hudId ──────────────────────────────────────────
+    // ── Read HUD metadata for hudId + minPlan ────────────────────────────────
+    // minPlan подписывается в key.sig: hud.json не подписан, и без этого тариф
+    // худа можно было понизить правкой файла (премиум-худ на Стартере).
     let hudId = 'unknown';
+    let minPlan = 'free';
     try {
         const meta = JSON.parse(fs.readFileSync(path.join(dir, 'hud.json'), 'utf8'));
         hudId = meta.name ?? hudId;
+        if (typeof meta.minPlan === 'string' && meta.minPlan.trim()) minPlan = meta.minPlan.trim();
     } catch { /* ignore */ }
 
     // ── Read master private key ──────────────────────────────────────────────
@@ -106,14 +110,14 @@ const sign = () => {
 
     // ── Sign the HUD public key with the master key → key.sig ────────────────
     const keySig = jwt.sign(
-        { key: keys.publicKey.toString(), hudId },
+        { key: keys.publicKey.toString(), hudId, minPlan },
         masterPrivateKey,
         { algorithm: 'RS256' },
     );
     fs.writeFileSync(keySigFile, keySig);
 
     console.log(`[sign] ✓ Signed ${filesToSign.length} files`);
-    console.log(`[sign] ✓ key.sig created (hudId: ${hudId})`);
+    console.log(`[sign] ✓ key.sig created (hudId: ${hudId}, minPlan: ${minPlan})`);
     return true;
 };
 
