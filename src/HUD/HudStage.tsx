@@ -22,6 +22,9 @@ interface StageGeometry {
     height: number;
 }
 
+/** CSS zoom на <html> — им клиент задаёт «Масштаб» оверлея. innerWidth/innerHeight он не меняет. */
+const rootZoom = (): number => parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+
 const measure = (): StageGeometry => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
@@ -29,7 +32,10 @@ const measure = (): StageGeometry => {
     if (!vw || !vh) return { scale: 1, width: BASE_W, height: BASE_H };
     let scale = vh / BASE_H;
     if (vw / scale < MIN_W) scale = vw / MIN_W;
-    return { scale, width: vw / scale, height: vh / scale };
+    // Сцена делится на zoom, чтобы занять весь экран: «Масштаб 80%» уменьшает элементы,
+    // а они остаются у своих краёв. Без этого вся сцена сжималась в левый верхний угол.
+    const z = rootZoom();
+    return { scale, width: vw / (scale * z), height: vh / (scale * z) };
 };
 
 /**
@@ -57,7 +63,13 @@ const HudStage = ({ children }: { children: React.ReactNode }) => {
         });
         onResize();
         window.addEventListener('resize', onResize);
-        return () => window.removeEventListener('resize', onResize);
+        // Масштаб оверлея клиент ставит после загрузки (style.zoom на <html>) — resize при этом нет
+        const zoomWatch = new MutationObserver(onResize);
+        zoomWatch.observe(document.documentElement, { attributes: true, attributeFilter: ['style'] });
+        return () => {
+            window.removeEventListener('resize', onResize);
+            zoomWatch.disconnect();
+        };
     }, []);
 
     const { scale, width, height } = g;

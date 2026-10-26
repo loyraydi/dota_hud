@@ -9,7 +9,7 @@ import { applyHudColors } from '../HUD/hudColors';
 
 const MEOWHUD_PORT = 1349;
 
-export const socket = io(`http://localhost:${MEOWHUD_PORT}`, {
+export const socket = io(`http://${window.location.hostname || "localhost"}:${MEOWHUD_PORT}`, {
     transports: ['websocket', 'polling'],
 });
 

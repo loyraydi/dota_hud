@@ -5,7 +5,7 @@ import { Match } from '../../api/interfaces.ts';
 import TeamRow from './Picker';
 
 // Базовый URL для логотипов команд
-const LOGO_BASE = 'http://localhost:1349/api/teams/logo';
+const LOGO_BASE = `http://${window.location.hostname || 'localhost'}:1349/api/teams/logo`;
 
 const TeamInfo = ({
                       draft, type, players, team, match, teamId, active, timeRemaining, bonusTime, firstPickTeam,

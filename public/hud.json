@@ -1,7 +1,7 @@
 {
     "hudId":"meow-dota-default",
     "name":"Meow Dota 2 Default HUD",
-    "version":"1.0.4",
+    "version":"1.0.5",
     "author":"aohameow",
     "minPlan":"free",
     "legacy": false,

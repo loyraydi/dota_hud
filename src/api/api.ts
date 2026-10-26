@@ -1,7 +1,9 @@
 import * as Types from './interfaces';
 
 export const port = 1349;
-export const HOST = 'http://localhost';
+// Хост страницы, а не localhost: худ открыт с другого ПК по IP этой машины (OBS режиссёра
+// в локальной сети) — API и сокет там же. В OBS, оверлее и dev-сервере это localhost.
+export const HOST = `http://${window.location.hostname || 'localhost'}`;
 export const apiUrl = `${HOST}:${port}/`;
 
 export { getAssetURL } from './getAssetURL';
